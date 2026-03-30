@@ -1,0 +1,36 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: fabgraph-postgres
+    environment:
+      POSTGRES_USER: fabgraph
+      POSTGRES_PASSWORD: fabgraph
+      POSTGRES_DB: fabgraph
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fabgraph -d fabgraph"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres/init:/docker-entrypoint-initdb.d:ro
+
+  neo4j:
+    image: neo4j:5
+    container_name: fabgraph-neo4j
+    environment:
+      NEO4J_AUTH: neo4j/fabgraph123
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    volumes:
+      - neo4j_data:/data
+      - ./neo4j:/seed:ro
+
+volumes:
+  postgres_data:
+  neo4j_data:
